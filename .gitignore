@@ -1,0 +1,25 @@
+# Build artifacts
+bin/
+obj/
+publish/
+artifacts/
+
+# Visual Studio / Rider / VS Code user files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test and coverage output
+TestResults/
+*.coverage
+*.coveragexml
+
+# Local agent/tooling metadata
+.claude/
+
+# Logs
+*.log

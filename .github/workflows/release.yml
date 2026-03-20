@@ -1,0 +1,62 @@
+name: Build and Release NetPulse
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_VERSION: v1.0.1
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore ./netpulse.sln
+
+      - name: Build
+        run: dotnet build ./netpulse.sln -c Release --no-restore
+
+      - name: Publish win-x64
+        run: >-
+          dotnet publish ./NetPulse.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o ./publish/win-x64
+
+      - name: Create zip package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path ./artifacts -Force | Out-Null
+          $zip = "./artifacts/NetPulse-win-x64-${{ env.RELEASE_VERSION }}.zip"
+          Compress-Archive -Path ./publish/win-x64/* -DestinationPath $zip -Force
+          "ZIP_PATH=$zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Create GitHub Release and upload artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: NetPulse ${{ env.RELEASE_VERSION }}
+          generate_release_notes: true
+          files: ${{ env.ZIP_PATH }}

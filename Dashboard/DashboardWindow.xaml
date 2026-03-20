@@ -1,0 +1,254 @@
+<Window x:Class="NetPulse.Dashboard.DashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NetPulse — Network Monitor"
+        Width="860" Height="560"
+        MinWidth="640" MinHeight="420"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E2E"
+        Foreground="#CDD6F4">
+
+  <Window.Resources>
+    <!-- Tab button base style -->
+    <Style x:Key="TabBtn" TargetType="Button">
+      <Setter Property="Background"         Value="#313244"/>
+      <Setter Property="Foreground"         Value="#CDD6F4"/>
+      <Setter Property="BorderBrush"        Value="Transparent"/>
+      <Setter Property="BorderThickness"    Value="0"/>
+      <Setter Property="Padding"            Value="18,7"/>
+      <Setter Property="FontSize"           Value="13"/>
+      <Setter Property="Cursor"             Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}"
+                    CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#45475A"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Card border style -->
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background"   Value="#313244"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding"      Value="14,10"/>
+    </Style>
+
+    <Style x:Key="CardLabel" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="#A6ADC8"/>
+      <Setter Property="FontSize"   Value="10"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Margin"     Value="0,0,0,4"/>
+    </Style>
+
+    <Style x:Key="CardValue" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="#CDD6F4"/>
+      <Setter Property="FontSize"   Value="18"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- DataGrid header style -->
+    <Style x:Key="GridHeader" TargetType="DataGridColumnHeader">
+      <Setter Property="Background"        Value="#313244"/>
+      <Setter Property="Foreground"        Value="#A6ADC8"/>
+      <Setter Property="Padding"           Value="10,7"/>
+      <Setter Property="FontSize"          Value="11"/>
+      <Setter Property="FontWeight"        Value="SemiBold"/>
+      <Setter Property="BorderBrush"       Value="#45475A"/>
+      <Setter Property="BorderThickness"   Value="0,0,0,1"/>
+      <Setter Property="SeparatorBrush"    Value="#45475A"/>
+    </Style>
+
+    <!-- DataGrid row style -->
+    <Style x:Key="GridRow" TargetType="DataGridRow">
+      <Setter Property="Background" Value="#1E1E2E"/>
+      <Setter Property="Foreground" Value="#CDD6F4"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#313244"/>
+        </Trigger>
+        <Trigger Property="IsSelected" Value="True">
+          <Setter Property="Background" Value="#45475A"/>
+        </Trigger>
+        <DataTrigger Binding="{Binding AlternationIndex,
+                               RelativeSource={RelativeSource Self}}"
+                     Value="1">
+          <Setter Property="Background" Value="#24273A"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </Window.Resources>
+
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="12"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="14"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <!-- ── Header row: tab buttons + live speed ── -->
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <StackPanel Orientation="Horizontal" Grid.Column="0">
+        <Button Content="Daily"
+                Style="{StaticResource TabBtn}"
+                Command="{Binding SelectDailyCommand}"/>
+        <Button Content="Monthly"
+                Style="{StaticResource TabBtn}"
+                Margin="6,0,0,0"
+                Command="{Binding SelectMonthlyCommand}"/>
+        <Button Content="Yearly"
+                Style="{StaticResource TabBtn}"
+                Margin="6,0,0,0"
+                Command="{Binding SelectYearlyCommand}"/>
+        <TextBlock Text="{Binding TabLabel}"
+                   Margin="14,0,0,0"
+                   VerticalAlignment="Center"
+                   Foreground="#6C7086"
+                   FontSize="12"/>
+      </StackPanel>
+
+      <TextBlock Grid.Column="2"
+                 Text="{Binding CurrentSpeed}"
+                 VerticalAlignment="Center"
+                 Foreground="#89B4FA"
+                 FontSize="12"
+                 FontFamily="Consolas"/>
+    </Grid>
+
+    <!-- ── Summary cards ── -->
+    <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Border Grid.Column="0" Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="DOWNLOAD" Style="{StaticResource CardLabel}"/>
+          <TextBlock Text="{Binding SummaryDownload}" Style="{StaticResource CardValue}"
+                     Foreground="#89B4FA"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="2" Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="UPLOAD" Style="{StaticResource CardLabel}"/>
+          <TextBlock Text="{Binding SummaryUpload}" Style="{StaticResource CardValue}"
+                     Foreground="#F38BA8"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="4" Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="TOTAL" Style="{StaticResource CardLabel}"/>
+          <TextBlock Text="{Binding SummaryTotal}" Style="{StaticResource CardValue}"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="6" Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="LIVE SPEED" Style="{StaticResource CardLabel}"/>
+          <TextBlock Text="{Binding CurrentSpeed}" Style="{StaticResource CardValue}"
+                     FontSize="12"
+                     Foreground="#A6E3A1"
+                     FontFamily="Consolas"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- ── Per-process DataGrid ── -->
+    <DataGrid Grid.Row="4"
+              ItemsSource="{Binding AppRowsView}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserSortColumns="True"
+              CanUserReorderColumns="False"
+              CanUserResizeRows="False"
+              SelectionMode="Single"
+              AlternationCount="2"
+              Background="#1E1E2E"
+              Foreground="#CDD6F4"
+              BorderThickness="0"
+              RowHeaderWidth="0"
+              GridLinesVisibility="Horizontal"
+              HorizontalGridLinesBrush="#313244"
+              ColumnHeaderStyle="{StaticResource GridHeader}"
+              RowStyle="{StaticResource GridRow}">
+
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Process"
+                            Binding="{Binding ProcessName}"
+                            Width="*">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="Padding"   Value="10,6"/>
+              <Setter Property="Foreground" Value="#CDD6F4"/>
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+
+        <DataGridTextColumn Header="Download"
+                            Binding="{Binding FormattedReceived}"
+                            SortMemberPath="BytesReceived"
+                            Width="130">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="Padding"    Value="10,6"/>
+              <Setter Property="Foreground" Value="#89B4FA"/>
+              <Setter Property="FontFamily" Value="Consolas"/>
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+
+        <DataGridTextColumn Header="Upload"
+                            Binding="{Binding FormattedSent}"
+                            SortMemberPath="BytesSent"
+                            Width="130">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="Padding"    Value="10,6"/>
+              <Setter Property="Foreground" Value="#F38BA8"/>
+              <Setter Property="FontFamily" Value="Consolas"/>
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+
+        <DataGridTextColumn Header="Total"
+                            Binding="{Binding FormattedTotal}"
+                            SortMemberPath="TotalBytes"
+                            Width="130">
+          <DataGridTextColumn.ElementStyle>
+            <Style TargetType="TextBlock">
+              <Setter Property="Padding"    Value="10,6"/>
+              <Setter Property="FontFamily" Value="Consolas"/>
+            </Style>
+          </DataGridTextColumn.ElementStyle>
+        </DataGridTextColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</Window>
