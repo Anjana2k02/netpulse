@@ -13,7 +13,7 @@ AppVersion={#AppVersion}
 DefaultDirName={autopf}\NetPulse
 DefaultGroupName=NetPulse
 DisableProgramGroupPage=yes
-OutputDir=artifacts
+OutputDir=..\artifacts
 OutputBaseFilename={#OutputBaseFilename}
 Compression=lzma2
 SolidCompression=yes
@@ -27,7 +27,7 @@ UninstallDisplayIcon={app}\NetPulse.exe
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Additional icons:"
 
 [Files]
-Source: "publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\NetPulse"; Filename: "{app}\NetPulse.exe"
