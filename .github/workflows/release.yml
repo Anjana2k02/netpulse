@@ -49,20 +49,36 @@ jobs:
           -p:DebugSymbols=false
           -o ./publish/win-x64
 
-      - name: Create zip package
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer exe
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ./artifacts -Force | Out-Null
-          $zip = "./artifacts/NetPulse-win-x64-framework-dependent-${{ env.RELEASE_VERSION }}.zip"
-          Compress-Archive -Path ./publish/win-x64/* -DestinationPath $zip -Force
-          $sizeBytes = (Get-Item $zip).Length
-          $sizeMb = [math]::Round($sizeBytes / 1MB, 2)
-          Write-Host "Release ZIP size: $sizeMb MB"
-          if ($sizeBytes -gt 10MB) {
-            Write-Error "Release ZIP is larger than 10 MB. Current size: $sizeMb MB"
+          $installer = "./artifacts/NetPulse-Setup-${{ env.RELEASE_VERSION }}.exe"
+
+          if (Test-Path $installer) {
+            Remove-Item $installer -Force
+          }
+
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            Write-Error "ISCC.exe not found at expected path: $iscc"
             exit 1
           }
-          "ZIP_PATH=$zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          & $iscc "/DAppVersion=${{ env.RELEASE_VERSION }}" "/DOutputBaseFilename=NetPulse-Setup-${{ env.RELEASE_VERSION }}" "./installer/NetPulse.iss"
+
+          if (-not (Test-Path $installer)) {
+            Write-Error "Installer was not generated: $installer"
+            exit 1
+          }
+
+          $sizeBytes = (Get-Item $installer).Length
+          $sizeMb = [math]::Round($sizeBytes / 1MB, 2)
+          Write-Host "Installer EXE size: $sizeMb MB"
+          "INSTALLER_PATH=$installer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Create GitHub Release and upload artifact
         uses: softprops/action-gh-release@v2
@@ -71,4 +87,4 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: NetPulse ${{ env.RELEASE_VERSION }}
           generate_release_notes: true
-          files: ${{ env.ZIP_PATH }}
+          files: ${{ env.INSTALLER_PATH }}
