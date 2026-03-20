@@ -20,7 +20,13 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _summaryUpload   = "0 B";
     [ObservableProperty] private string _summaryTotal    = "0 B";
     [ObservableProperty] private string _currentSpeed    = "0 B/s ↓   0 B/s ↑";
+    [ObservableProperty] private string _downSpeed       = "0 B/s";
+    [ObservableProperty] private string _upSpeed         = "0 B/s";
     [ObservableProperty] private string _tabLabel        = "Today";
+
+    public bool IsDailyActive   => SelectedTab == FilterTab.Daily;
+    public bool IsMonthlyActive => SelectedTab == FilterTab.Monthly;
+    public bool IsYearlyActive  => SelectedTab == FilterTab.Yearly;
 
     public ObservableCollection<AppUsageRowViewModel> AppRows { get; } = new();
     public ICollectionView AppRowsView { get; }
@@ -42,6 +48,13 @@ public partial class DashboardViewModel : ObservableObject
         };
 
         LoadData();
+    }
+
+    partial void OnSelectedTabChanged(FilterTab value)
+    {
+        OnPropertyChanged(nameof(IsDailyActive));
+        OnPropertyChanged(nameof(IsMonthlyActive));
+        OnPropertyChanged(nameof(IsYearlyActive));
     }
 
     // ── Commands ──────────────────────────────────────────────────────────
@@ -98,6 +111,8 @@ public partial class DashboardViewModel : ObservableObject
     /// <summary>Called every second by DashboardWindow to update live speed display.</summary>
     public void RefreshSpeed(long recvRate, long sendRate)
     {
-        CurrentSpeed = $"{ByteFormatHelper.Format(recvRate)}/s ↓   {ByteFormatHelper.Format(sendRate)}/s ↑";
+        DownSpeed    = $"{ByteFormatHelper.Format(recvRate)}/s";
+        UpSpeed      = $"{ByteFormatHelper.Format(sendRate)}/s";
+        CurrentSpeed = $"{DownSpeed} ↓   {UpSpeed} ↑";
     }
 }

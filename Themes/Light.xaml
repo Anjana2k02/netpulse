@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Backgrounds -->
+  <SolidColorBrush x:Key="BgBrush"         Color="#F5F5F5"/>
+  <SolidColorBrush x:Key="SurfaceBrush"    Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="CardBgBrush"     Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="Surface2Brush"   Color="#F0F0F0"/>
+  <SolidColorBrush x:Key="HoverBrush"      Color="#EFEFEF"/>
+  <SolidColorBrush x:Key="BorderBrush"     Color="#E8E8E8"/>
+  <SolidColorBrush x:Key="GridLineBrush"   Color="#F0F0F0"/>
+
+  <!-- Text -->
+  <SolidColorBrush x:Key="TextPrimaryBrush"   Color="#1A1A1A"/>
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280"/>
+  <SolidColorBrush x:Key="TextMutedBrush"     Color="#9CA3AF"/>
+
+  <!-- Data colours -->
+  <SolidColorBrush x:Key="DownloadBrush" Color="#2563EB"/>
+  <SolidColorBrush x:Key="UploadBrush"   Color="#DC2626"/>
+  <SolidColorBrush x:Key="TotalBrush"    Color="#1A1A1A"/>
+  <SolidColorBrush x:Key="SpeedBrush"    Color="#16A34A"/>
+
+  <!-- Tab / segmented control -->
+  <SolidColorBrush x:Key="TabContainerBrush"    Color="#E8E8E8"/>
+  <SolidColorBrush x:Key="TabActiveBrush"       Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="TabActiveTextBrush"   Color="#1A1A1A"/>
+  <SolidColorBrush x:Key="TabInactiveTextBrush" Color="#9CA3AF"/>
+  <SolidColorBrush x:Key="TabHoverBrush"        Color="#F5F5F5"/>
+
+  <!-- DataGrid header -->
+  <SolidColorBrush x:Key="HeaderBgBrush" Color="#FAFAFA"/>
+  <SolidColorBrush x:Key="HeaderFgBrush" Color="#9CA3AF"/>
+
+  <!-- ScrollBar -->
+  <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#D1D5DB"/>
+  <SolidColorBrush x:Key="ScrollBarBgBrush"    Color="#F5F5F5"/>
+
+</ResourceDictionary>

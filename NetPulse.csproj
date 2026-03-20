@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <Resource Include="Assets\tray-icon.ico" />
+    <Resource Include="Themes\Dark.xaml" />
+    <Resource Include="Themes\Light.xaml" />
   </ItemGroup>
 
 </Project>

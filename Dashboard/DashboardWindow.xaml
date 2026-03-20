@@ -2,26 +2,31 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="NetPulse — Network Monitor"
-        Width="860" Height="560"
-        MinWidth="640" MinHeight="420"
+        Width="900" Height="580"
+        MinWidth="660" MinHeight="440"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E2E"
-        Foreground="#CDD6F4">
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
+        FontFamily="Segoe UI Variable, Segoe UI"
+        FontSize="13">
 
   <Window.Resources>
-    <!-- Tab button base style -->
+
+    <!-- ── Tab button (segmented control style) ───────────────────────── -->
     <Style x:Key="TabBtn" TargetType="Button">
-      <Setter Property="Background"         Value="#313244"/>
-      <Setter Property="Foreground"         Value="#CDD6F4"/>
-      <Setter Property="BorderBrush"        Value="Transparent"/>
-      <Setter Property="BorderThickness"    Value="0"/>
-      <Setter Property="Padding"            Value="18,7"/>
-      <Setter Property="FontSize"           Value="13"/>
-      <Setter Property="Cursor"             Value="Hand"/>
+      <Setter Property="Background"      Value="Transparent"/>
+      <Setter Property="Foreground"      Value="{DynamicResource TabInactiveTextBrush}"/>
+      <Setter Property="BorderBrush"     Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding"         Value="16,6"/>
+      <Setter Property="FontSize"        Value="13"/>
+      <Setter Property="FontWeight"      Value="Medium"/>
+      <Setter Property="Cursor"          Value="Hand"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border Background="{TemplateBinding Background}"
+            <Border x:Name="Bd"
+                    Background="{TemplateBinding Background}"
                     CornerRadius="6"
                     Padding="{TemplateBinding Padding}">
               <ContentPresenter HorizontalAlignment="Center"
@@ -29,7 +34,8 @@
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#45475A"/>
+                <Setter TargetName="Bd" Property="Background"
+                        Value="{DynamicResource TabHoverBrush}"/>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -37,111 +43,206 @@
       </Setter>
     </Style>
 
-    <!-- Card border style -->
+    <!-- ── Summary card border ────────────────────────────────────────── -->
     <Style x:Key="Card" TargetType="Border">
-      <Setter Property="Background"   Value="#313244"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding"      Value="14,10"/>
+      <Setter Property="Background"      Value="{DynamicResource CardBgBrush}"/>
+      <Setter Property="CornerRadius"    Value="10"/>
+      <Setter Property="Padding"         Value="18,14"/>
+      <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style x:Key="CardLabel" TargetType="TextBlock">
-      <Setter Property="Foreground" Value="#A6ADC8"/>
-      <Setter Property="FontSize"   Value="10"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Margin"     Value="0,0,0,4"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+      <Setter Property="FontSize"   Value="11"/>
+      <Setter Property="FontWeight" Value="Medium"/>
+      <Setter Property="Margin"     Value="0,0,0,6"/>
     </Style>
 
     <Style x:Key="CardValue" TargetType="TextBlock">
-      <Setter Property="Foreground" Value="#CDD6F4"/>
-      <Setter Property="FontSize"   Value="18"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize"   Value="20"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <!-- DataGrid header style -->
+    <!-- ── DataGrid column header ─────────────────────────────────────── -->
     <Style x:Key="GridHeader" TargetType="DataGridColumnHeader">
-      <Setter Property="Background"        Value="#313244"/>
-      <Setter Property="Foreground"        Value="#A6ADC8"/>
-      <Setter Property="Padding"           Value="10,7"/>
-      <Setter Property="FontSize"          Value="11"/>
-      <Setter Property="FontWeight"        Value="SemiBold"/>
-      <Setter Property="BorderBrush"       Value="#45475A"/>
-      <Setter Property="BorderThickness"   Value="0,0,0,1"/>
-      <Setter Property="SeparatorBrush"    Value="#45475A"/>
+      <Setter Property="Background"             Value="{DynamicResource HeaderBgBrush}"/>
+      <Setter Property="Foreground"             Value="{DynamicResource HeaderFgBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Padding"                Value="10,8"/>
+      <Setter Property="FontSize"               Value="11"/>
+      <Setter Property="FontWeight"             Value="SemiBold"/>
+      <Setter Property="BorderThickness"        Value="0"/>
+      <Setter Property="SeparatorBrush"         Value="Transparent"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="DataGridColumnHeader">
+            <Border Background="{TemplateBinding Background}"
+                    Padding="{TemplateBinding Padding}">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ContentPresenter Grid.Column="0"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="Center"/>
+                <Path x:Name="SortArrow" Grid.Column="1"
+                      Visibility="Collapsed"
+                      Width="8" Height="6" Margin="4,0,2,0"
+                      Fill="{DynamicResource HeaderFgBrush}"
+                      VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="SortDirection" Value="Ascending">
+                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="SortArrow" Property="Data"
+                        Value="M 0,6 L 4,0 L 8,6 Z"/>
+              </Trigger>
+              <Trigger Property="SortDirection" Value="Descending">
+                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="SortArrow" Property="Data"
+                        Value="M 0,0 L 4,6 L 8,0 Z"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
 
-    <!-- DataGrid row style -->
+    <!-- ── DataGrid row ────────────────────────────────────────────────── -->
     <Style x:Key="GridRow" TargetType="DataGridRow">
-      <Setter Property="Background" Value="#1E1E2E"/>
-      <Setter Property="Foreground" Value="#CDD6F4"/>
+      <Setter Property="Background"     Value="{DynamicResource BgBrush}"/>
+      <Setter Property="Foreground"     Value="{DynamicResource TextPrimaryBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Background" Value="#313244"/>
+          <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
         </Trigger>
         <Trigger Property="IsSelected" Value="True">
-          <Setter Property="Background" Value="#45475A"/>
+          <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
         </Trigger>
-        <DataTrigger Binding="{Binding AlternationIndex,
-                               RelativeSource={RelativeSource Self}}"
-                     Value="1">
-          <Setter Property="Background" Value="#24273A"/>
-        </DataTrigger>
       </Style.Triggers>
     </Style>
+
+    <!-- ── DataGrid cell ───────────────────────────────────────────────── -->
+    <Style TargetType="DataGridCell">
+      <Setter Property="BorderThickness"  Value="0"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Background"       Value="Transparent"/>
+    </Style>
+
   </Window.Resources>
 
-  <Grid Margin="16">
+  <Grid Margin="20,16,20,16">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="12"/>
+      <RowDefinition Height="14"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="14"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <!-- ── Header row: tab buttons + live speed ── -->
+    <!-- ── Header: tab pills + date label + live speed ───────────────── -->
     <Grid Grid.Row="0">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="10"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <StackPanel Orientation="Horizontal" Grid.Column="0">
-        <Button Content="Daily"
-                Style="{StaticResource TabBtn}"
-                Command="{Binding SelectDailyCommand}"/>
-        <Button Content="Monthly"
-                Style="{StaticResource TabBtn}"
-                Margin="6,0,0,0"
-                Command="{Binding SelectMonthlyCommand}"/>
-        <Button Content="Yearly"
-                Style="{StaticResource TabBtn}"
-                Margin="6,0,0,0"
-                Command="{Binding SelectYearlyCommand}"/>
-        <TextBlock Text="{Binding TabLabel}"
-                   Margin="14,0,0,0"
-                   VerticalAlignment="Center"
-                   Foreground="#6C7086"
-                   FontSize="12"/>
-      </StackPanel>
+      <!-- Segmented tab control -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource TabContainerBrush}"
+              CornerRadius="8"
+              Padding="3">
+        <StackPanel Orientation="Horizontal">
 
+          <Button Command="{Binding SelectDailyCommand}">
+            <Button.Style>
+              <Style TargetType="Button" BasedOn="{StaticResource TabBtn}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsDailyActive}" Value="True">
+                    <Setter Property="Background"
+                            Value="{DynamicResource TabActiveBrush}"/>
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource TabActiveTextBrush}"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+            <TextBlock Text="Daily"/>
+          </Button>
+
+          <Button Command="{Binding SelectMonthlyCommand}" Margin="1,0,0,0">
+            <Button.Style>
+              <Style TargetType="Button" BasedOn="{StaticResource TabBtn}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsMonthlyActive}" Value="True">
+                    <Setter Property="Background"
+                            Value="{DynamicResource TabActiveBrush}"/>
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource TabActiveTextBrush}"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+            <TextBlock Text="Monthly"/>
+          </Button>
+
+          <Button Command="{Binding SelectYearlyCommand}" Margin="1,0,0,0">
+            <Button.Style>
+              <Style TargetType="Button" BasedOn="{StaticResource TabBtn}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsYearlyActive}" Value="True">
+                    <Setter Property="Background"
+                            Value="{DynamicResource TabActiveBrush}"/>
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource TabActiveTextBrush}"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+            <TextBlock Text="Yearly"/>
+          </Button>
+
+        </StackPanel>
+      </Border>
+
+      <!-- Tab date label -->
       <TextBlock Grid.Column="2"
-                 Text="{Binding CurrentSpeed}"
+                 Text="{Binding TabLabel}"
                  VerticalAlignment="Center"
-                 Foreground="#89B4FA"
-                 FontSize="12"
-                 FontFamily="Consolas"/>
+                 Foreground="{DynamicResource TextMutedBrush}"
+                 FontSize="12"/>
+
+      <!-- Live speed (right-aligned) -->
+      <StackPanel Grid.Column="4"
+                  Orientation="Horizontal"
+                  VerticalAlignment="Center">
+        <TextBlock FontSize="12" Foreground="{DynamicResource DownloadBrush}">
+          <Run Text="↓ "/><Run Text="{Binding DownSpeed}"/>
+        </TextBlock>
+        <TextBlock Text="    " FontSize="12"/>
+        <TextBlock FontSize="12" Foreground="{DynamicResource UploadBrush}">
+          <Run Text="↑ "/><Run Text="{Binding UpSpeed}"/>
+        </TextBlock>
+      </StackPanel>
     </Grid>
 
-    <!-- ── Summary cards ── -->
+    <!-- ── Summary cards ──────────────────────────────────────────────── -->
     <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="10"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="10"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="8"/>
+        <ColumnDefinition Width="10"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
@@ -149,7 +250,7 @@
         <StackPanel>
           <TextBlock Text="DOWNLOAD" Style="{StaticResource CardLabel}"/>
           <TextBlock Text="{Binding SummaryDownload}" Style="{StaticResource CardValue}"
-                     Foreground="#89B4FA"/>
+                     Foreground="{DynamicResource DownloadBrush}"/>
         </StackPanel>
       </Border>
 
@@ -157,30 +258,37 @@
         <StackPanel>
           <TextBlock Text="UPLOAD" Style="{StaticResource CardLabel}"/>
           <TextBlock Text="{Binding SummaryUpload}" Style="{StaticResource CardValue}"
-                     Foreground="#F38BA8"/>
+                     Foreground="{DynamicResource UploadBrush}"/>
         </StackPanel>
       </Border>
 
       <Border Grid.Column="4" Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Text="TOTAL" Style="{StaticResource CardLabel}"/>
-          <TextBlock Text="{Binding SummaryTotal}" Style="{StaticResource CardValue}"/>
+          <TextBlock Text="{Binding SummaryTotal}" Style="{StaticResource CardValue}"
+                     Foreground="{DynamicResource TotalBrush}"/>
         </StackPanel>
       </Border>
 
       <Border Grid.Column="6" Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Text="LIVE SPEED" Style="{StaticResource CardLabel}"/>
-          <TextBlock Text="{Binding CurrentSpeed}" Style="{StaticResource CardValue}"
-                     FontSize="12"
-                     Foreground="#A6E3A1"
-                     FontFamily="Consolas"
-                     TextWrapping="Wrap"/>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource DownloadBrush}">
+              <Run Text="↓ "/><Run Text="{Binding DownSpeed}"/>
+            </TextBlock>
+            <TextBlock Text="  " FontSize="14"/>
+            <TextBlock FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource UploadBrush}">
+              <Run Text="↑ "/><Run Text="{Binding UpSpeed}"/>
+            </TextBlock>
+          </StackPanel>
         </StackPanel>
       </Border>
     </Grid>
 
-    <!-- ── Per-process DataGrid ── -->
+    <!-- ── Per-process DataGrid ───────────────────────────────────────── -->
     <DataGrid Grid.Row="4"
               ItemsSource="{Binding AppRowsView}"
               AutoGenerateColumns="False"
@@ -189,65 +297,111 @@
               CanUserReorderColumns="False"
               CanUserResizeRows="False"
               SelectionMode="Single"
-              AlternationCount="2"
-              Background="#1E1E2E"
-              Foreground="#CDD6F4"
+              AlternationCount="0"
+              Background="{DynamicResource BgBrush}"
+              Foreground="{DynamicResource TextPrimaryBrush}"
               BorderThickness="0"
               RowHeaderWidth="0"
               GridLinesVisibility="Horizontal"
-              HorizontalGridLinesBrush="#313244"
+              HorizontalGridLinesBrush="{DynamicResource GridLineBrush}"
               ColumnHeaderStyle="{StaticResource GridHeader}"
-              RowStyle="{StaticResource GridRow}">
+              RowStyle="{StaticResource GridRow}"
+              ScrollViewer.VerticalScrollBarVisibility="Auto">
 
       <DataGrid.Columns>
+
+        <!-- App icon -->
+        <DataGridTemplateColumn Width="44"
+                                CanUserSort="False"
+                                CanUserResize="False">
+          <DataGridTemplateColumn.Header>
+            <TextBlock/>
+          </DataGridTemplateColumn.Header>
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Image Source="{Binding AppIcon}"
+                     Width="18" Height="18"
+                     Margin="0,4"
+                     RenderOptions.BitmapScalingMode="HighQuality"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+
+        <!-- Process name -->
         <DataGridTextColumn Header="Process"
                             Binding="{Binding ProcessName}"
                             Width="*">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
-              <Setter Property="Padding"   Value="10,6"/>
-              <Setter Property="Foreground" Value="#CDD6F4"/>
+              <Setter Property="Padding"           Value="4,8"/>
+              <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
+              <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
           </DataGridTextColumn.ElementStyle>
         </DataGridTextColumn>
 
+        <!-- Download -->
         <DataGridTextColumn Header="Download"
                             Binding="{Binding FormattedReceived}"
                             SortMemberPath="BytesReceived"
-                            Width="130">
+                            Width="115">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
-              <Setter Property="Padding"    Value="10,6"/>
-              <Setter Property="Foreground" Value="#89B4FA"/>
-              <Setter Property="FontFamily" Value="Consolas"/>
+              <Setter Property="Padding"           Value="10,8"/>
+              <Setter Property="Foreground"        Value="{DynamicResource DownloadBrush}"/>
+              <Setter Property="TextAlignment"     Value="Right"/>
+              <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
           </DataGridTextColumn.ElementStyle>
+          <DataGridTextColumn.HeaderStyle>
+            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource GridHeader}">
+              <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            </Style>
+          </DataGridTextColumn.HeaderStyle>
         </DataGridTextColumn>
 
+        <!-- Upload -->
         <DataGridTextColumn Header="Upload"
                             Binding="{Binding FormattedSent}"
                             SortMemberPath="BytesSent"
-                            Width="130">
+                            Width="115">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
-              <Setter Property="Padding"    Value="10,6"/>
-              <Setter Property="Foreground" Value="#F38BA8"/>
-              <Setter Property="FontFamily" Value="Consolas"/>
+              <Setter Property="Padding"           Value="10,8"/>
+              <Setter Property="Foreground"        Value="{DynamicResource UploadBrush}"/>
+              <Setter Property="TextAlignment"     Value="Right"/>
+              <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
           </DataGridTextColumn.ElementStyle>
+          <DataGridTextColumn.HeaderStyle>
+            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource GridHeader}">
+              <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            </Style>
+          </DataGridTextColumn.HeaderStyle>
         </DataGridTextColumn>
 
+        <!-- Total -->
         <DataGridTextColumn Header="Total"
                             Binding="{Binding FormattedTotal}"
                             SortMemberPath="TotalBytes"
-                            Width="130">
+                            Width="115">
           <DataGridTextColumn.ElementStyle>
             <Style TargetType="TextBlock">
-              <Setter Property="Padding"    Value="10,6"/>
-              <Setter Property="FontFamily" Value="Consolas"/>
+              <Setter Property="Padding"           Value="10,8"/>
+              <Setter Property="Foreground"        Value="{DynamicResource TotalBrush}"/>
+              <Setter Property="TextAlignment"     Value="Right"/>
+              <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
           </DataGridTextColumn.ElementStyle>
+          <DataGridTextColumn.HeaderStyle>
+            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource GridHeader}">
+              <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            </Style>
+          </DataGridTextColumn.HeaderStyle>
         </DataGridTextColumn>
+
       </DataGrid.Columns>
     </DataGrid>
   </Grid>

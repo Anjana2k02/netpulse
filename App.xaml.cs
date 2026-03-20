@@ -9,9 +9,10 @@ public partial class App : Application
 {
     private static Mutex? _mutex;
 
-    private EtwTrackingService?  _etw;
-    private StorageService?      _storage;
-    private TrayIconManager?     _tray;
+    private EtwTrackingService? _etw;
+    private StorageService?     _storage;
+    private TrayIconManager?    _tray;
+    private ThemeService?       _themeService;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -29,6 +30,11 @@ public partial class App : Application
 
         GC.KeepAlive(_mutex);
         base.OnStartup(e);
+
+        // ── Theme ─────────────────────────────────────────────────────────
+        _themeService = new ThemeService();
+        _themeService.ThemeChanged += ApplyTheme;
+        ApplyTheme();
 
         // ── Wire services ─────────────────────────────────────────────────
         _etw     = new EtwTrackingService();
@@ -49,12 +55,27 @@ public partial class App : Application
             StartupRegistrar.Register();
     }
 
+    private void ApplyTheme()
+    {
+        var uri = _themeService!.IsDarkMode
+            ? new Uri("pack://application:,,,/Themes/Dark.xaml")
+            : new Uri("pack://application:,,,/Themes/Light.xaml");
+
+        Current.Dispatcher.Invoke(() =>
+        {
+            Current.Resources.MergedDictionaries.Clear();
+            Current.Resources.MergedDictionaries.Add(
+                new ResourceDictionary { Source = uri });
+        });
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         _storage?.SaveToday();
         _tray?.Dispose();
         _etw?.Dispose();
         _storage?.Dispose();
+        _themeService?.Dispose();
 
         try { _mutex?.ReleaseMutex(); } catch { /* already released */ }
         _mutex?.Dispose();
