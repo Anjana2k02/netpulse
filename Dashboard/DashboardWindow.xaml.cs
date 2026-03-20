@@ -1,12 +1,20 @@
 namespace NetPulse.Dashboard;
 
+using Microsoft.Win32;
 using NetPulse.Core.Services;
 using NetPulse.Dashboard.ViewModels;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Threading;
 
 public partial class DashboardWindow : Window
 {
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int v, int sz);
+
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
     private readonly DashboardViewModel _viewModel;
     private readonly EtwTrackingService _etw;
     private readonly DispatcherTimer    _timer;
@@ -32,6 +40,42 @@ public partial class DashboardWindow : Window
         _timer.Start();
     }
 
+    // ── Title bar theming ─────────────────────────────────────────────────
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        ApplyTitleBarTheme();
+        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+    }
+
+    private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    {
+        if (e.Category == UserPreferenceCategory.General)
+            Dispatcher.Invoke(ApplyTitleBarTheme);
+    }
+
+    private static bool SystemIsDark()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return (int)(key?.GetValue("AppsUseLightTheme") ?? 1) == 0;
+        }
+        catch { return false; }
+    }
+
+    private void ApplyTitleBarTheme()
+    {
+        var hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        int v = SystemIsDark() ? 1 : 0;
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref v, sizeof(int));
+    }
+
+    // ── Timer tick ────────────────────────────────────────────────────────
+
     private void OnTick(object? sender, EventArgs e)
     {
         var sent = _etw.TotalBytesSentToday;
@@ -51,6 +95,7 @@ public partial class DashboardWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         _timer.Stop();
         base.OnClosed(e);
     }
