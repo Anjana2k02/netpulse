@@ -31,6 +31,13 @@ jobs:
       - name: Build
         run: dotnet build ./netpulse.sln -c Release --no-restore
 
+      - name: Clean publish output
+        shell: pwsh
+        run: |
+          if (Test-Path ./publish/win-x64) {
+            Remove-Item ./publish/win-x64 -Recurse -Force
+          }
+
       - name: Publish win-x64 (framework-dependent)
         run: >-
           dotnet publish ./NetPulse.csproj
