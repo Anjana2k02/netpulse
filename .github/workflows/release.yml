@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  RELEASE_VERSION: v1.0.1
+  RELEASE_VERSION: v1.0.2
 
 jobs:
   release:
@@ -31,15 +31,13 @@ jobs:
       - name: Build
         run: dotnet build ./netpulse.sln -c Release --no-restore
 
-      - name: Publish win-x64
+      - name: Publish win-x64 (framework-dependent)
         run: >-
           dotnet publish ./NetPulse.csproj
           -c Release
           -r win-x64
-          --self-contained true
-          -p:PublishSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:PublishReadyToRun=true
+          --self-contained false
+          -p:UseAppHost=true
           -p:DebugType=None
           -p:DebugSymbols=false
           -o ./publish/win-x64
@@ -48,8 +46,15 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ./artifacts -Force | Out-Null
-          $zip = "./artifacts/NetPulse-win-x64-${{ env.RELEASE_VERSION }}.zip"
+          $zip = "./artifacts/NetPulse-win-x64-framework-dependent-${{ env.RELEASE_VERSION }}.zip"
           Compress-Archive -Path ./publish/win-x64/* -DestinationPath $zip -Force
+          $sizeBytes = (Get-Item $zip).Length
+          $sizeMb = [math]::Round($sizeBytes / 1MB, 2)
+          Write-Host "Release ZIP size: $sizeMb MB"
+          if ($sizeBytes -gt 10MB) {
+            Write-Error "Release ZIP is larger than 10 MB. Current size: $sizeMb MB"
+            exit 1
+          }
           "ZIP_PATH=$zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Create GitHub Release and upload artifact
